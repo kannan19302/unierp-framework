@@ -143,22 +143,58 @@ function LinkAutocomplete({
 }) {
   const registry = useModuleRegistry();
   const linkedResourceName = field.link?.resource;
-  const labelField = field.link?.labelField || 'name';
-
   const linkedResource = linkedResourceName ? registry.getResource(linkedResourceName) : undefined;
+
+  // The resolved autocomplete is a separate component so its data hooks are
+  // never mounted without a resource: they build query keys from
+  // resource.name/endpoint eagerly and throw on an unregistered target.
+  if (!linkedResource) {
+    return (
+      <Input
+        id={field.name}
+        disabled={field.readOnly}
+        placeholder={field.placeholder || `Enter ${field.label}...`}
+        value={String(value ?? '')}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    );
+  }
+
+  return (
+    <ResolvedLinkAutocomplete
+      field={field}
+      value={value}
+      onChange={onChange}
+      linkedResource={linkedResource}
+    />
+  );
+}
+
+function ResolvedLinkAutocomplete({
+  field,
+  value,
+  onChange,
+  linkedResource,
+}: {
+  field: FieldDef;
+  value: unknown;
+  onChange: (value: unknown) => void;
+  linkedResource: ResourceSchema;
+}) {
+  const labelField = field.link?.labelField || 'name';
 
   const [search, setSearch] = useState('');
   const [isOpen, setIsOpen] = useState(false);
 
   // 1. Fetch display label of selected value
   const { data: selectedDoc, isLoading: isDocLoading } = useResourceDoc(
-    linkedResource!,
+    linkedResource,
     value && typeof value === 'string' ? value : null
   );
 
   // 2. Fetch search suggestions
   const { data: listResult, isLoading: isListLoading } = useResourceList(
-    linkedResource!,
+    linkedResource,
     {
       search: isOpen ? search : '',
       pageSize: 10,
@@ -175,19 +211,6 @@ function LinkAutocomplete({
     document.addEventListener('click', handleClose);
     return () => document.removeEventListener('click', handleClose);
   }, [isOpen]);
-
-  if (!linkedResource) {
-    // Fallback if resource schema is not registered/found
-    return (
-      <Input
-        id={field.name}
-        disabled={field.readOnly}
-        placeholder={field.placeholder || `Enter ${field.label}...`}
-        value={String(value ?? '')}
-        onChange={(e) => onChange(e.target.value)}
-      />
-    );
-  }
 
   const suggestions = listResult?.data ?? [];
   const primaryKey = linkedResource.primaryKey || 'id';
