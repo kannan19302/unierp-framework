@@ -88,6 +88,24 @@ export interface ListConfig {
   savedViews?: boolean;
   /** Field names editable inline in the list (text/number/select/currency/percent) */
   inlineEdit?: string[];
+  /**
+   * View modes offered by the list's view switcher. Defaults to ['table'],
+   * plus 'kanban'/'chart' automatically when a groupable field exists
+   * (status field or an explicit kanban/chart groupBy).
+   */
+  views?: Array<'table' | 'kanban' | 'chart'>;
+  /** Kanban board config; groupBy defaults to the resource's status field. */
+  kanban?: {
+    /** Select/status field whose values become board columns */
+    groupBy?: string;
+    /** Extra fields rendered on each card (defaults to first 3 columns) */
+    cardFields?: string[];
+  };
+  /** Chart view config; groupBy defaults to the resource's status field. */
+  chart?: {
+    /** Field whose value distribution is charted */
+    groupBy?: string;
+  };
 }
 
 export interface FormSectionDef {
@@ -115,6 +133,8 @@ export interface ResourceSchema {
   name: string;
   labelSingular: string;
   labelPlural: string;
+  /** One-sentence "what is this?" hint surfaced as an (i) tooltip on list pages */
+  description?: string;
   /** API path relative to the client base URL, e.g. "/crm/customers" */
   endpoint: string;
   /** Defaults to "id" */
@@ -133,6 +153,8 @@ export interface NavItemDef {
   name: string;
   href: string;
   permission?: string;
+  /** Short "what does this open?" hint for nav tooltips and global search */
+  description?: string;
 }
 
 export interface ModuleDefinition {

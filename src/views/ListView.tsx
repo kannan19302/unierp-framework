@@ -2,8 +2,8 @@
 
 import { useMemo, useState, type ReactNode } from 'react';
 import {
-  Badge, Button, ColumnPicker, DataTable, EmptyState, Input, Pagination, Select,
-  exportToCsv, type Column,
+  Badge, Button, ColumnPicker, DataTable, EmptyState, InfoHint, Input, KanbanBoard,
+  Pagination, Select, ViewSwitcher, exportToCsv, type Column, type KanbanItem, type ViewMode,
 } from '@unerp/ui';
 import { useDeleteResource, useResourceList, useUpdateResource } from '../data';
 import { Guarded } from '../permissions';
@@ -17,7 +17,10 @@ import type { FieldDef, FieldValues, FilterValues, ListParams, ResourceSchema, S
 // pagination/sort/search, field-driven filter bar,
 // saved views, multi-select with RBAC-gated bulk
 // delete, row actions, column picker, CSV export,
-// and inline cell editing.
+// inline cell editing, and switchable table /
+// kanban / chart views with click-through drill-down
+// (chart segments filter the table; kanban cards
+// open the record).
 // ─────────────────────────────────────────────────
 
 export interface ListViewProps {
@@ -111,11 +114,21 @@ export function ListView({ resource, onRowClick, onCreate, filters: externalFilt
   const [visibleColumns, setVisibleColumns] = useState<string[] | null>(null);
   const [activeViewId, setActiveViewId] = useState('');
 
+  // ── View modes (table / kanban / chart) ─────────
+  // A groupable field (explicit kanban/chart groupBy, or the status field)
+  // unlocks the kanban and chart views automatically.
+  const groupField = listConfig.kanban?.groupBy ?? listConfig.chart?.groupBy ?? resource.status?.field;
+  const groupFieldDef = groupField ? resource.fields.find((f) => f.name === groupField) : undefined;
+  const availableViews = listConfig.views ?? (groupField ? (['table', 'kanban', 'chart'] as const) : (['table'] as const));
+  const [viewMode, setViewMode] = useState<'table' | 'kanban' | 'chart'>('table');
+
   const pageSize = listConfig.pageSize ?? 20;
+  // Kanban/chart need the population, not one page — fetch a wide window.
+  const effectivePageSize = viewMode === 'table' ? pageSize : 200;
   const mergedFilters = { ...externalFilters, ...fieldFilters };
   const params: ListParams = {
-    page,
-    pageSize,
+    page: viewMode === 'table' ? page : 1,
+    pageSize: effectivePageSize,
     search: search || undefined,
     sortField: sort?.field,
     sortDirection: sort?.direction,
@@ -210,6 +223,56 @@ export function ListView({ resource, onRowClick, onCreate, filters: externalFilt
 
   const total = result?.total ?? 0;
   const pageCount = Math.max(1, Math.ceil(total / pageSize));
+  const rows = result?.data ?? [];
+
+  // ── Kanban derivation ───────────────────────────
+  const kanbanColumns = useMemo(() => {
+    if (!groupField) return [];
+    const optionCols = groupFieldDef?.options?.map((o) => ({ key: o.value, title: o.label }));
+    if (optionCols && optionCols.length > 0) return optionCols;
+    const toneKeys = resource.status && resource.status.field === groupField ? Object.keys(resource.status.tones) : [];
+    const dataKeys = [...new Set(rows.map((r) => String(r[groupField] ?? '—')))];
+    const keys = [...new Set([...toneKeys, ...dataKeys])];
+    return keys.map((k) => ({ key: k, title: k }));
+  }, [groupField, groupFieldDef, resource.status, rows]);
+
+  const titleField = resource.titleField ?? (resource.fields.some((f) => f.name === 'name') ? 'name' : resource.fields[0]?.name ?? 'id');
+  const cardFields = listConfig.kanban?.cardFields
+    ?? allColumnNames.filter((n) => n !== groupField && n !== titleField).slice(0, 3);
+  const kanbanEditable = !!groupFieldDef && !groupFieldDef.readOnly;
+
+  // ── Chart derivation (value distribution of groupField) ──
+  const chartSegments = useMemo(() => {
+    if (!groupField) return [];
+    const counts = new Map<string, number>();
+    for (const r of rows) {
+      const key = String(r[groupField] ?? '—');
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+    return [...counts.entries()]
+      .map(([value, count]) => ({ value, count }))
+      .sort((a, b) => b.count - a.count);
+  }, [groupField, rows]);
+
+  const toneColor = (value: string): string => {
+    const tone = resource.status && resource.status.field === groupField ? resource.status.tones[value] : undefined;
+    switch (tone) {
+      case 'success': return 'var(--color-success)';
+      case 'warning': return 'var(--color-warning)';
+      case 'danger': return 'var(--color-danger)';
+      case 'info': return 'var(--color-info, var(--color-primary))';
+      case 'neutral': return 'var(--color-text-tertiary, var(--color-text-secondary))';
+      default: return 'var(--color-primary)';
+    }
+  };
+
+  /** Chart/kanban drill-down: filter the table to a segment's real records. */
+  const drillDown = (value: string) => {
+    if (!groupField) return;
+    setFieldFilters((prev) => ({ ...prev, [groupField]: value }));
+    setPage(1);
+    setViewMode('table');
+  };
 
   const currentState = (): SavedViewState => ({ search: search || undefined, filters: fieldFilters, sort });
   const applyView = (id: string) => {
@@ -240,6 +303,14 @@ export function ListView({ resource, onRowClick, onCreate, filters: externalFilt
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
       <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center', flexWrap: 'wrap' }}>
+        {resource.description && <InfoHint text={resource.description} size={16} />}
+        {availableViews.length > 1 && (
+          <ViewSwitcher
+            activeView={(viewMode === 'table' ? 'list' : viewMode) as ViewMode}
+            onViewChange={(v) => setViewMode(v === 'list' ? 'table' : (v as 'kanban' | 'chart'))}
+            availableViews={availableViews.map((v) => (v === 'table' ? 'list' : v)) as ViewMode[]}
+          />
+        )}
         {listConfig.searchable !== false && (
           <Input
             placeholder={`Search ${resource.labelPlural.toLowerCase()}…`}
@@ -306,6 +377,7 @@ export function ListView({ resource, onRowClick, onCreate, filters: externalFilt
             variant="secondary"
             size="sm"
             disabled={!result?.data?.length}
+            title={`Download the current ${resource.labelPlural.toLowerCase()} list as a CSV file`}
             onClick={() => exportToCsv(columns.filter((c) => c.key !== '__actions'), result?.data ?? [], resource.labelPlural.toLowerCase().replace(/\s+/g, '-'))}
           >
             Export CSV
@@ -323,11 +395,109 @@ export function ListView({ resource, onRowClick, onCreate, filters: externalFilt
         )}
         {onCreate && (
           <Guarded permission={resource.permissions?.create}>
-            <Button onClick={onCreate}>New {resource.labelSingular}</Button>
+            <Button title={`Create a new ${resource.labelSingular.toLowerCase()}`} onClick={onCreate}>
+              New {resource.labelSingular}
+            </Button>
           </Guarded>
         )}
       </div>
 
+      {viewMode === 'kanban' && groupField && (
+        <KanbanBoard
+          columns={kanbanColumns}
+          items={rows.map((row, i) => ({
+            ...row,
+            id: String(row[primaryKey] ?? i),
+            columnKey: String(row[groupField] ?? '—'),
+          })) as KanbanItem[]}
+          renderCard={(item) => {
+            const row = rows.find((r) => String(r[primaryKey]) === item.id) ?? (item as FieldValues);
+            return (
+              <div
+                role={onRowClick ? 'button' : undefined}
+                onClick={onRowClick ? () => onRowClick(row) : undefined}
+                style={{ cursor: onRowClick ? 'pointer' : 'default', display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}
+              >
+                <span style={{ fontWeight: 'var(--weight-semibold)', fontSize: 'var(--text-sm)', color: 'var(--color-text)' }}>
+                  {formatCellValue(resource.fields.find((f) => f.name === titleField), row[titleField]) || String(row[primaryKey] ?? '')}
+                </span>
+                {cardFields.map((name) => {
+                  const field = resource.fields.find((f) => f.name === name);
+                  const value = row[name];
+                  if (value === null || value === undefined || value === '') return null;
+                  return (
+                    <span key={name} style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)' }}>
+                      {field?.label ?? name}: {formatCellValue(field, value)}
+                    </span>
+                  );
+                })}
+              </div>
+            );
+          }}
+          onCardMove={
+            kanbanEditable
+              ? (itemId, _from, toColumn) => updateMutation.mutate({ id: itemId, values: { [groupField]: toColumn } })
+              : undefined
+          }
+        />
+      )}
+
+      {viewMode === 'chart' && groupField && (
+        <div className="ui-card" style={{ padding: 'var(--space-5)', display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+            <span style={{ fontWeight: 'var(--weight-semibold)', color: 'var(--color-text)' }}>
+              {resource.labelPlural} by {groupFieldDef?.label ?? groupField}
+            </span>
+            <InfoHint text="Click a bar to open the matching records in the table view" />
+          </div>
+          {chartSegments.length === 0 && !isLoading && (
+            <span style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--text-sm)' }}>No data to chart.</span>
+          )}
+          {chartSegments.map((seg) => {
+            const max = chartSegments[0]?.count ?? 1;
+            return (
+              <button
+                key={seg.value}
+                type="button"
+                title={`Show the ${seg.count} ${seg.count === 1 ? resource.labelSingular.toLowerCase() : resource.labelPlural.toLowerCase()} with ${groupFieldDef?.label ?? groupField} “${seg.value}”`}
+                onClick={() => drillDown(seg.value)}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'minmax(90px, 160px) 1fr 48px',
+                  alignItems: 'center',
+                  gap: 'var(--space-3)',
+                  background: 'none',
+                  border: 'none',
+                  padding: 'var(--space-1) 0',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                }}
+              >
+                <span style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {groupFieldDef?.options?.find((o) => o.value === seg.value)?.label ?? seg.value}
+                </span>
+                <span style={{ background: 'var(--color-bg-sunken)', borderRadius: 'var(--radius-full, 999px)', height: 14, overflow: 'hidden' }}>
+                  <span
+                    style={{
+                      display: 'block',
+                      width: `${Math.max(3, Math.round((seg.count / max) * 100))}%`,
+                      height: '100%',
+                      borderRadius: 'inherit',
+                      background: toneColor(seg.value),
+                      transition: 'width var(--duration-normal, 200ms)',
+                    }}
+                  />
+                </span>
+                <span style={{ fontSize: 'var(--text-sm)', fontWeight: 'var(--weight-semibold)', color: 'var(--color-text)', textAlign: 'right' }}>
+                  {seg.count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {viewMode === 'table' && (
       <DataTable<FieldValues>
         columns={columns}
         data={result?.data ?? []}
@@ -362,12 +532,14 @@ export function ListView({ resource, onRowClick, onCreate, filters: externalFilt
             : undefined
         }
       />
+      )}
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-secondary)' }}>
           {total} {total === 1 ? resource.labelSingular.toLowerCase() : resource.labelPlural.toLowerCase()}
+          {viewMode !== 'table' && total > effectivePageSize ? ` (showing first ${effectivePageSize})` : ''}
         </span>
-        <Pagination page={page} pageCount={pageCount} onChange={setPage} />
+        {viewMode === 'table' && <Pagination page={page} pageCount={pageCount} onChange={setPage} />}
       </div>
     </div>
   );
