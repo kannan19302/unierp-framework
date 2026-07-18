@@ -1,8 +1,9 @@
-'use client';
+"use client";
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useApiClient } from '../provider';
-import type { FilterValues, SortDirection } from '../types';
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useApiClient } from "../provider";
+import type { ApiClient } from "../client";
+import type { FilterValues, SortDirection } from "../types";
 
 // ─────────────────────────────────────────────────
 // Saved views — named list states (search + filters +
@@ -30,7 +31,7 @@ export interface SavedViewStore {
 
 export const localStorageViewStore: SavedViewStore = {
   load(key) {
-    if (typeof window === 'undefined') return [];
+    if (typeof window === "undefined") return [];
     try {
       const raw = window.localStorage.getItem(key);
       const parsed = raw ? (JSON.parse(raw) as SavedView[]) : [];
@@ -40,7 +41,7 @@ export const localStorageViewStore: SavedViewStore = {
     }
   },
   save(key, views) {
-    if (typeof window === 'undefined') return;
+    if (typeof window === "undefined") return;
     try {
       window.localStorage.setItem(key, JSON.stringify(views));
     } catch {
@@ -50,11 +51,17 @@ export const localStorageViewStore: SavedViewStore = {
 };
 
 export class ServerSavedViewStore implements SavedViewStore {
-  constructor(private readonly client: any, private readonly resourceName: string) {}
+  constructor(
+    private readonly client: ApiClient,
+    private readonly resourceName: string,
+  ) {}
 
   load(_key: string): Promise<SavedView[]> {
-    return this.client.get(`/saved-views?resourceName=${this.resourceName}`)
-      .then((data: any) => (Array.isArray(data) ? data : []))
+    return this.client
+      .get(`/saved-views?resourceName=${this.resourceName}`)
+      .then((data: unknown) =>
+        Array.isArray(data) ? (data as SavedView[]) : [],
+      )
       .catch(() => []);
   }
 
@@ -64,7 +71,9 @@ export class ServerSavedViewStore implements SavedViewStore {
       const current = await this.load(key);
 
       // Find deleted views (views in current but not in views parameter)
-      const deleted = current.filter((c) => !views.some((v) => v.name === c.name));
+      const deleted = current.filter(
+        (c) => !views.some((v) => v.name === c.name),
+      );
       for (const d of deleted) {
         await this.client.delete(`/saved-views/${d.id}`).catch(() => {});
       }
@@ -73,11 +82,13 @@ export class ServerSavedViewStore implements SavedViewStore {
       for (const v of views) {
         const match = current.find((c) => c.name === v.name);
         if (!match || JSON.stringify(match.state) !== JSON.stringify(v.state)) {
-          await this.client.post('/saved-views', {
-            resourceName: this.resourceName,
-            name: v.name,
-            state: v.state,
-          }).catch(() => {});
+          await this.client
+            .post("/saved-views", {
+              resourceName: this.resourceName,
+              name: v.name,
+              state: v.state,
+            })
+            .catch(() => {});
         }
       }
     } catch {
@@ -86,8 +97,11 @@ export class ServerSavedViewStore implements SavedViewStore {
   }
 }
 
-export function savedViewsKey(tenantId: string | null, resource: string): string {
-  return `unerp:saved-views:${tenantId ?? 'no-tenant'}:${resource}`;
+export function savedViewsKey(
+  tenantId: string | null,
+  resource: string,
+): string {
+  return `unerp:saved-views:${tenantId ?? "no-tenant"}:${resource}`;
 }
 
 export function useSavedViews(resourceName: string, store?: SavedViewStore) {
@@ -95,7 +109,9 @@ export function useSavedViews(resourceName: string, store?: SavedViewStore) {
 
   const actualStore = useMemo(() => {
     if (store) return store;
-    return client.tenantId ? new ServerSavedViewStore(client, resourceName) : localStorageViewStore;
+    return client.tenantId
+      ? new ServerSavedViewStore(client, resourceName)
+      : localStorageViewStore;
   }, [client, resourceName, store]);
 
   const key = savedViewsKey(client.tenantId, resourceName);
@@ -104,9 +120,11 @@ export function useSavedViews(resourceName: string, store?: SavedViewStore) {
   useEffect(() => {
     const loaded = actualStore.load(key);
     if (loaded instanceof Promise) {
-      loaded.then((data) => {
-        if (Array.isArray(data)) setViews(data);
-      }).catch(() => setViews([]));
+      loaded
+        .then((data) => {
+          if (Array.isArray(data)) setViews(data);
+        })
+        .catch(() => setViews([]));
     } else {
       if (Array.isArray(loaded)) setViews(loaded);
     }
@@ -114,7 +132,11 @@ export function useSavedViews(resourceName: string, store?: SavedViewStore) {
 
   const saveView = useCallback(
     (name: string, state: SavedViewState): SavedView => {
-      const view: SavedView = { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, name, state };
+      const view: SavedView = {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        name,
+        state,
+      };
       setViews((prev) => {
         const next = [...prev.filter((v) => v.name !== name), view];
         actualStore.save(key, next);
