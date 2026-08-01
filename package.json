@@ -3,18 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "description": "UniERP Frontend Framework — unified schema-driven application layer for all apps and modules",
-  "main": "./dist/framework/src/index.js",
-  "types": "./dist/framework/src/index.d.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/framework/src/index.d.ts",
-      "import": "./dist/framework/src/index.js",
-      "require": "./dist/framework/src/index.js",
-      "default": "./dist/framework/src/index.js"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
     }
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src/",
     "test": "vitest run --passWithNoTests",
