@@ -1,5 +1,8 @@
 # @unerp/framework
 
+> Part of **[UniERP](https://github.com/kannan19302/UniERP)** — an open-source, self-hostable multi-tenant application platform.
+> [Repository map](https://github.com/kannan19302/UniERP#repository-map) · [Architecture](https://github.com/kannan19302/UniERP#how-the-pieces-fit-at-runtime) · [Contributing](https://github.com/kannan19302/UniERP/blob/main/CONTRIBUTING.md) · [Security](https://github.com/kannan19302/UniERP/blob/main/SECURITY.md)
+
 UniERP's unified frontend framework. Provides a declarative metadata layer: modules describe their **resources** declaratively, and the framework generates data fetching, validation, navigation, and full list/detail/form views — the same way for every app and module.
 
 Sits **above** `@unerp/ui` (design system) and **below** each host app (`apps/web`, future apps). It is also the shared runtime that Studio-rendered pages should consume — do not fork a second rendering engine.
