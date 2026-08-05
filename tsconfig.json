@@ -11,9 +11,8 @@
     "dist",
     "**/*.spec.ts",
     "**/*.spec.tsx",
+    "**/__tests__/**",
     "**/*.test.ts",
-    "**/*.test.tsx",
-    "**/*.stories.tsx",
-    "**/__tests__/**"
+    "**/*.test.tsx"
   ]
 }

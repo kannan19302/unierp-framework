@@ -1,6 +1,6 @@
 {
   "name": "@unerp/framework",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "UniERP Frontend Framework — unified schema-driven application layer for all apps and modules",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -13,7 +13,7 @@
     }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.json && node scripts/fix-client-directives.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src/",
     "test": "vitest run --passWithNoTests",
@@ -29,7 +29,9 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
-    "@types/react": "^19.0.0",
+    "@types/node": "^26.1.2",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
     "@unerp/config": "^1.0.1",
     "rimraf": "^6.0.0",
     "typescript": "^5.7.0",
@@ -38,6 +40,8 @@
   "files": [
     "dist",
     "src",
-    "README.md"
-  ]
+    "README.md",
+    "scripts"
+  ],
+  "type": "commonjs"
 }
