@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactNode } from "react";
 
 // ─────────────────────────────────────────────────
 // @unerp/framework — Core metadata types
@@ -8,18 +8,18 @@ import type { ReactNode } from 'react';
 // ─────────────────────────────────────────────────
 
 export type FieldType =
-  | 'text'
-  | 'textarea'
-  | 'number'
-  | 'currency'
-  | 'percent'
-  | 'boolean'
-  | 'select'
-  | 'date'
-  | 'datetime'
-  | 'email'
-  | 'phone'
-  | 'link';
+  | "text"
+  | "textarea"
+  | "number"
+  | "currency"
+  | "percent"
+  | "boolean"
+  | "select"
+  | "date"
+  | "datetime"
+  | "email"
+  | "phone"
+  | "link";
 
 export interface SelectOption {
   value: string;
@@ -53,16 +53,19 @@ export interface FieldDef {
   maxLength?: number;
 }
 
-export type SortDirection = 'asc' | 'desc';
+export type SortDirection = "asc" | "desc";
 
-export type FilterValues = Record<string, string | number | boolean | undefined>;
+export type FilterValues = Record<
+  string,
+  string | number | boolean | undefined
+>;
 
 export interface RowActionDef {
   label: string;
   onClick: (row: FieldValues) => void;
   /** RBAC code required to see the action */
   permission?: string;
-  tone?: 'default' | 'danger';
+  tone?: "default" | "danger";
 }
 
 export interface ListConfig {
@@ -93,7 +96,7 @@ export interface ListConfig {
    * plus 'kanban'/'chart' automatically when a groupable field exists
    * (status field or an explicit kanban/chart groupBy).
    */
-  views?: Array<'table' | 'kanban' | 'chart'>;
+  views?: Array<"table" | "kanban" | "chart">;
   /** Kanban board config; groupBy defaults to the resource's status field. */
   kanban?: {
     /** Select/status field whose values become board columns */
@@ -119,7 +122,7 @@ export interface FormConfig {
   sections?: FormSectionDef[];
 }
 
-export type StatusTone = 'success' | 'warning' | 'danger' | 'info' | 'neutral';
+export type StatusTone = "success" | "warning" | "danger" | "info" | "neutral";
 
 export interface ResourcePermissions {
   read?: string;

@@ -1,4 +1,4 @@
-import type { ModuleDefinition, NavItemDef } from './types';
+import type { ModuleDefinition, NavItemDef } from "./types";
 
 // ─────────────────────────────────────────────────
 // Navigation derivation — sidebar entries generated
@@ -32,7 +32,10 @@ export function buildModuleNav(
   for (const resource of module.resources) {
     const readPermission = resource.permissions?.read;
     if (readPermission && !hasPermission(readPermission)) continue;
-    items.push({ name: resource.labelPlural, href: `${module.basePath}/${resource.name}` });
+    items.push({
+      name: resource.labelPlural,
+      href: `${module.basePath}/${resource.name}`,
+    });
   }
   for (const item of module.nav ?? []) {
     if (item.permission && !hasPermission(item.permission)) continue;
@@ -41,8 +44,13 @@ export function buildModuleNav(
   return { moduleId: module.id, title: module.title, items };
 }
 
-function resolveNavItem(module: ModuleDefinition, item: NavItemDef): ResolvedNavItem {
-  const href = item.href.startsWith('/') ? item.href : `${module.basePath}/${item.href}`;
+function resolveNavItem(
+  module: ModuleDefinition,
+  item: NavItemDef,
+): ResolvedNavItem {
+  const href = item.href.startsWith("/")
+    ? item.href
+    : `${module.basePath}/${item.href}`;
   return { name: item.name, href };
 }
 
@@ -53,5 +61,7 @@ export function buildAppNav(
 ): ResolvedModuleNav[] {
   return modules
     .map((m) => buildModuleNav(m, hasPermission))
-    .filter((nav): nav is ResolvedModuleNav => nav !== null && nav.items.length > 0);
+    .filter(
+      (nav): nav is ResolvedModuleNav => nav !== null && nav.items.length > 0,
+    );
 }

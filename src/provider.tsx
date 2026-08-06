@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { createContext, useContext, useMemo, type ReactNode } from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ApiClient, type ApiClientConfig } from './client';
-import { ModuleRegistry, createRegistry } from './registry';
-import type { ModuleDefinition } from './types';
+import { createContext, useContext, useMemo, type ReactNode } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ApiClient, type ApiClientConfig } from "./client";
+import { ModuleRegistry, createRegistry } from "./registry";
+import type { ModuleDefinition } from "./types";
 
 // ─────────────────────────────────────────────────
 // FrameworkProvider — the single provider a host app
@@ -47,17 +47,32 @@ export function FrameworkProvider({
   );
 
   const ownClient = useMemo(
-    () => (queryClient ?? (createQueryClient ? new QueryClient({ defaultOptions: { queries: { staleTime: 30_000, retry: 1 } } }) : null)),
+    () =>
+      queryClient ??
+      (createQueryClient
+        ? new QueryClient({
+            defaultOptions: { queries: { staleTime: 30_000, retry: 1 } },
+          })
+        : null),
     [],
   );
 
-  const inner = <FrameworkContext.Provider value={value}>{children}</FrameworkContext.Provider>;
-  return ownClient ? <QueryClientProvider client={ownClient}>{inner}</QueryClientProvider> : inner;
+  const inner = (
+    <FrameworkContext.Provider value={value}>
+      {children}
+    </FrameworkContext.Provider>
+  );
+  return ownClient ? (
+    <QueryClientProvider client={ownClient}>{inner}</QueryClientProvider>
+  ) : (
+    inner
+  );
 }
 
 export function useFramework(): FrameworkContextValue {
   const ctx = useContext(FrameworkContext);
-  if (!ctx) throw new Error('useFramework must be used inside <FrameworkProvider>');
+  if (!ctx)
+    throw new Error("useFramework must be used inside <FrameworkProvider>");
   return ctx;
 }
 

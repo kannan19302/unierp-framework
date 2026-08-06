@@ -1,4 +1,4 @@
-import type { ModuleDefinition, ResourceSchema } from './types';
+import type { ModuleDefinition, ResourceSchema } from "./types";
 
 // ─────────────────────────────────────────────────
 // Module registry — modules self-describe via
@@ -8,14 +8,16 @@ import type { ModuleDefinition, ResourceSchema } from './types';
 
 /** Identity helper that validates and types a module definition at authoring time. */
 export function defineModule(module: ModuleDefinition): ModuleDefinition {
-  if (!module.id) throw new Error('defineModule: module id is required');
-  if (!module.basePath.startsWith('/')) {
+  if (!module.id) throw new Error("defineModule: module id is required");
+  if (!module.basePath.startsWith("/")) {
     throw new Error(`defineModule(${module.id}): basePath must start with "/"`);
   }
   const seen = new Set<string>();
   for (const resource of module.resources) {
     if (seen.has(resource.name)) {
-      throw new Error(`defineModule(${module.id}): duplicate resource "${resource.name}"`);
+      throw new Error(
+        `defineModule(${module.id}): duplicate resource "${resource.name}"`,
+      );
     }
     seen.add(resource.name);
   }
@@ -52,7 +54,9 @@ export class ModuleRegistry {
   }
 }
 
-export function createRegistry(modules: ModuleDefinition[] = []): ModuleRegistry {
+export function createRegistry(
+  modules: ModuleDefinition[] = [],
+): ModuleRegistry {
   const registry = new ModuleRegistry();
   for (const module of modules) registry.register(module);
   return registry;

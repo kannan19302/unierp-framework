@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import type { ReactNode } from 'react';
-import { EmptyState, usePermission } from '@unerp/ui';
+import type { ReactNode } from "react";
+import { EmptyState, usePermission } from "@unerp/ui";
 
 // ─────────────────────────────────────────────────
 // Permission guards — thin layer over @unerp/ui's
@@ -9,7 +9,12 @@ import { EmptyState, usePermission } from '@unerp/ui';
 // share one RBAC vocabulary (`module.resource.action`).
 // ─────────────────────────────────────────────────
 
-export { usePermission, PermissionContext, ProtectedComponent, ProtectedField } from '@unerp/ui';
+export {
+  usePermission,
+  PermissionContext,
+  ProtectedComponent,
+  ProtectedField,
+} from "@unerp/ui";
 
 export interface GuardedProps {
   /** RBAC code; when omitted, access is granted */
@@ -20,15 +25,25 @@ export interface GuardedProps {
 }
 
 /** Hides children when the user lacks the permission. */
-export function Guarded({ permission, children, fallback = null }: GuardedProps) {
-  const allowed = usePermission(permission ?? '');
+export function Guarded({
+  permission,
+  children,
+  fallback = null,
+}: GuardedProps) {
+  const allowed = usePermission(permission ?? "");
   if (permission && !allowed) return <>{fallback}</>;
   return <>{children}</>;
 }
 
 /** Full-page route guard — renders a 403 empty state instead of the page. */
-export function RouteGuard({ permission, children }: { permission?: string; children: ReactNode }) {
-  const allowed = usePermission(permission ?? '');
+export function RouteGuard({
+  permission,
+  children,
+}: {
+  permission?: string;
+  children: ReactNode;
+}) {
+  const allowed = usePermission(permission ?? "");
   if (permission && !allowed) {
     return (
       <EmptyState

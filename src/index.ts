@@ -14,9 +14,14 @@
 //   views      — schema-driven ListView / FormView / DetailView
 // ─────────────────────────────────────────────────
 
-export * from './types';
-export { ApiClient, ApiRequestError, type ApiClientConfig } from './client';
-export { defineModule, defineResource, ModuleRegistry, createRegistry } from './registry';
+export * from "./types";
+export { ApiClient, ApiRequestError, type ApiClientConfig } from "./client";
+export {
+  defineModule,
+  defineResource,
+  ModuleRegistry,
+  createRegistry,
+} from "./registry";
 export {
   FrameworkProvider,
   useFramework,
@@ -24,8 +29,13 @@ export {
   useModuleRegistry,
   type FrameworkProviderProps,
   type FrameworkContextValue,
-} from './provider';
-export { buildZodSchema, validateValues, initialValues, type FieldErrors } from './schema';
+} from "./provider";
+export {
+  buildZodSchema,
+  validateValues,
+  initialValues,
+  type FieldErrors,
+} from "./schema";
 export {
   resourceKeys,
   useResourceList,
@@ -33,13 +43,13 @@ export {
   useCreateResource,
   useUpdateResource,
   useDeleteResource,
-} from './data';
+} from "./data";
 export {
   buildModuleNav,
   buildAppNav,
   type ResolvedNavItem,
   type ResolvedModuleNav,
-} from './nav';
+} from "./nav";
 export {
   Guarded,
   RouteGuard,
@@ -48,9 +58,9 @@ export {
   ProtectedComponent,
   ProtectedField,
   type GuardedProps,
-} from './permissions';
-export { ListView, type ListViewProps } from './views/ListView';
-export { FilterBar, type FilterBarProps } from './views/FilterBar';
+} from "./permissions";
+export { ListView, type ListViewProps } from "./views/ListView";
+export { FilterBar, type FilterBarProps } from "./views/FilterBar";
 export {
   useSavedViews,
   savedViewsKey,
@@ -58,7 +68,7 @@ export {
   type SavedView,
   type SavedViewState,
   type SavedViewStore,
-} from './views/saved-views';
-export { FormView, type FormViewProps } from './views/FormView';
-export { DetailView, type DetailViewProps } from './views/DetailView';
-export { formatCellValue } from './views/format';
+} from "./views/saved-views";
+export { FormView, type FormViewProps } from "./views/FormView";
+export { DetailView, type DetailViewProps } from "./views/DetailView";
+export { formatCellValue } from "./views/format";

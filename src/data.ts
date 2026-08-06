@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   useMutation,
@@ -6,9 +6,14 @@ import {
   useQueryClient,
   type UseMutationResult,
   type UseQueryResult,
-} from '@tanstack/react-query';
-import { useApiClient } from './provider';
-import type { FieldValues, ListParams, ListResult, ResourceSchema } from './types';
+} from "@tanstack/react-query";
+import { useApiClient } from "./provider";
+import type {
+  FieldValues,
+  ListParams,
+  ListResult,
+  ResourceSchema,
+} from "./types";
 
 // ─────────────────────────────────────────────────
 // Data hooks — tenant-scoped TanStack Query wrappers.
@@ -17,11 +22,11 @@ import type { FieldValues, ListParams, ListResult, ResourceSchema } from './type
 // ─────────────────────────────────────────────────
 
 export function resourceKeys(tenantId: string | null, resource: string) {
-  const root = ['unerp', tenantId ?? 'no-tenant', resource] as const;
+  const root = ["unerp", tenantId ?? "no-tenant", resource] as const;
   return {
     all: root,
-    list: (params: ListParams) => [...root, 'list', params] as const,
-    doc: (id: string) => [...root, 'doc', id] as const,
+    list: (params: ListParams) => [...root, "list", params] as const,
+    doc: (id: string) => [...root, "doc", id] as const,
   };
 }
 
@@ -43,7 +48,7 @@ export function useResourceDoc<T = FieldValues>(
 ): UseQueryResult<T> {
   const client = useApiClient();
   return useQuery({
-    queryKey: resourceKeys(client.tenantId, resource.name).doc(id ?? ''),
+    queryKey: resourceKeys(client.tenantId, resource.name).doc(id ?? ""),
     queryFn: () => client.get<T>(`${resource.endpoint}/${id}`),
     enabled: !!id,
   });
@@ -52,7 +57,10 @@ export function useResourceDoc<T = FieldValues>(
 function useInvalidate(resource: ResourceSchema) {
   const client = useApiClient();
   const queryClient = useQueryClient();
-  return () => queryClient.invalidateQueries({ queryKey: resourceKeys(client.tenantId, resource.name).all });
+  return () =>
+    queryClient.invalidateQueries({
+      queryKey: resourceKeys(client.tenantId, resource.name).all,
+    });
 }
 
 export function useCreateResource<T = FieldValues>(
@@ -61,7 +69,8 @@ export function useCreateResource<T = FieldValues>(
   const client = useApiClient();
   const invalidate = useInvalidate(resource);
   return useMutation({
-    mutationFn: (values: FieldValues) => client.post<T>(resource.endpoint, values),
+    mutationFn: (values: FieldValues) =>
+      client.post<T>(resource.endpoint, values),
     onSuccess: () => void invalidate(),
   });
 }
@@ -72,12 +81,15 @@ export function useUpdateResource<T = FieldValues>(
   const client = useApiClient();
   const invalidate = useInvalidate(resource);
   return useMutation({
-    mutationFn: ({ id, values }) => client.patch<T>(`${resource.endpoint}/${id}`, values),
+    mutationFn: ({ id, values }) =>
+      client.patch<T>(`${resource.endpoint}/${id}`, values),
     onSuccess: () => void invalidate(),
   });
 }
 
-export function useDeleteResource(resource: ResourceSchema): UseMutationResult<unknown, Error, string> {
+export function useDeleteResource(
+  resource: ResourceSchema,
+): UseMutationResult<unknown, Error, string> {
   const client = useApiClient();
   const invalidate = useInvalidate(resource);
   return useMutation({
