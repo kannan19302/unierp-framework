@@ -29,7 +29,7 @@ function fieldToZod(field: FieldDef): ZodTypeAny {
       base = z.string().email(`${field.label} must be a valid email`);
       break;
     case "select": {
-      const values = (field.options ?? []).map((o) => o.value);
+      const values = (field.options ?? []).map((o: any) => o.value);
       base =
         values.length > 0
           ? z.enum(values as [string, ...string[]])
@@ -95,7 +95,7 @@ export function validateValues(
 ): FieldErrors {
   const errors: FieldErrors = {};
   const visible = resource.fields.filter(
-    (f) => !f.readOnly && (!f.visibleIf || f.visibleIf(values)),
+    (f: any) => !f.readOnly && (!f.visibleIf || f.visibleIf(values)),
   );
 
   const schema = buildZodSchema(resource);
@@ -104,7 +104,7 @@ export function validateValues(
     for (const issue of result.error.issues) {
       const name = String(issue.path[0] ?? "");
       // Only report errors for currently-visible fields
-      if (name && visible.some((f) => f.name === name) && !errors[name]) {
+      if (name && visible.some((f: any) => f.name === name) && !errors[name]) {
         errors[name] = issue.message;
       }
     }

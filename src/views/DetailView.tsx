@@ -127,7 +127,7 @@ export function DetailView({
             margin: 0,
           }}
         >
-          {resource.fields.map((field) => (
+          {resource.fields.map((field: any) => (
             <Guarded key={field.name} permission={field.permission}>
               <div>
                 <dt

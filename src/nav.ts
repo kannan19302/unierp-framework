@@ -60,8 +60,8 @@ export function buildAppNav(
   hasPermission: (code: string) => boolean = () => true,
 ): ResolvedModuleNav[] {
   return modules
-    .map((m) => buildModuleNav(m, hasPermission))
+    .map((m: any) => buildModuleNav(m, hasPermission))
     .filter(
-      (nav): nav is ResolvedModuleNav => nav !== null && nav.items.length > 0,
+      (nav: any): nav is ResolvedModuleNav => nav !== null && nav.items.length > 0,
     );
 }

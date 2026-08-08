@@ -29,11 +29,11 @@ function control(
         <Select
           {...common}
           value={value === undefined ? "" : String(value)}
-          onChange={(e) => set(e.target.value || undefined)}
+          onChange={(e: any) => set(e.target.value || undefined)}
           style={{ minWidth: 140 }}
         >
           <option value="">{field.label}: All</option>
-          {(field.options ?? []).map((o) => (
+          {(field.options ?? []).map((o: any) => (
             <option key={o.value} value={o.value}>
               {o.label}
             </option>
@@ -45,7 +45,7 @@ function control(
         <Select
           {...common}
           value={value === undefined ? "" : String(value)}
-          onChange={(e) => set(e.target.value || undefined)}
+          onChange={(e: any) => set(e.target.value || undefined)}
           style={{ minWidth: 140 }}
         >
           <option value="">{field.label}: All</option>
@@ -60,7 +60,7 @@ function control(
           {...common}
           type="date"
           value={value === undefined ? "" : String(value)}
-          onChange={(e) => set(e.target.value || undefined)}
+          onChange={(e: any) => set(e.target.value || undefined)}
           style={{ maxWidth: 170 }}
         />
       );
@@ -73,7 +73,7 @@ function control(
           type="number"
           placeholder={field.label}
           value={value === undefined ? "" : String(value)}
-          onChange={(e) => set(e.target.value || undefined)}
+          onChange={(e: any) => set(e.target.value || undefined)}
           style={{ maxWidth: 130 }}
         />
       );
@@ -83,7 +83,7 @@ function control(
           {...common}
           placeholder={field.label}
           value={value === undefined ? "" : String(value)}
-          onChange={(e) => set(e.target.value || undefined)}
+          onChange={(e: any) => set(e.target.value || undefined)}
           style={{ maxWidth: 170 }}
         />
       );
@@ -98,11 +98,11 @@ export function FilterBar({
 }: FilterBarProps) {
   const names = fields ?? resource.list?.filters ?? [];
   const defs = names
-    .map((n) => resource.fields.find((f) => f.name === n))
-    .filter((f): f is FieldDef => !!f);
+    .map((n: any) => resource.fields.find((f: any) => f.name === n))
+    .filter((f: any): f is FieldDef => !!f);
   if (defs.length === 0) return null;
 
-  const active = defs.some((f) => values[f.name] !== undefined);
+  const active = defs.some((f: any) => values[f.name] !== undefined);
 
   return (
     <div
@@ -113,9 +113,9 @@ export function FilterBar({
         flexWrap: "wrap",
       }}
     >
-      {defs.map((f) => (
+      {defs.map((f: any) => (
         <span key={f.name}>
-          {control(f, values[f.name], (v) =>
+          {control(f, values[f.name], (v: any) =>
             onChange({ ...values, [f.name]: v }),
           )}
         </span>
@@ -125,7 +125,7 @@ export function FilterBar({
           variant="ghost"
           size="sm"
           onClick={() =>
-            onChange(Object.fromEntries(defs.map((f) => [f.name, undefined])))
+            onChange(Object.fromEntries(defs.map((f: any) => [f.name, undefined])))
           }
         >
           Clear filters

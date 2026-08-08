@@ -30,7 +30,7 @@ export interface SavedViewStore {
 }
 
 export const localStorageViewStore: SavedViewStore = {
-  load(key) {
+  load(key: any) {
     if (typeof window === "undefined") return [];
     try {
       const raw = window.localStorage.getItem(key);
@@ -40,7 +40,7 @@ export const localStorageViewStore: SavedViewStore = {
       return [];
     }
   },
-  save(key, views) {
+  save(key: any, views: any) {
     if (typeof window === "undefined") return;
     try {
       window.localStorage.setItem(key, JSON.stringify(views));
@@ -72,7 +72,7 @@ export class ServerSavedViewStore implements SavedViewStore {
 
       // Find deleted views (views in current but not in views parameter)
       const deleted = current.filter(
-        (c) => !views.some((v) => v.name === c.name),
+        (c: any) => !views.some((v: any) => v.name === c.name),
       );
       for (const d of deleted) {
         await this.client.delete(`/saved-views/${d.id}`).catch(() => {});
@@ -80,7 +80,7 @@ export class ServerSavedViewStore implements SavedViewStore {
 
       // Find created/updated views
       for (const v of views) {
-        const match = current.find((c) => c.name === v.name);
+        const match = current.find((c: any) => c.name === v.name);
         if (!match || JSON.stringify(match.state) !== JSON.stringify(v.state)) {
           await this.client
             .post("/saved-views", {
@@ -121,7 +121,7 @@ export function useSavedViews(resourceName: string, store?: SavedViewStore) {
     const loaded = actualStore.load(key);
     if (loaded instanceof Promise) {
       loaded
-        .then((data) => {
+        .then((data: any) => {
           if (Array.isArray(data)) setViews(data);
         })
         .catch(() => setViews([]));
@@ -137,8 +137,8 @@ export function useSavedViews(resourceName: string, store?: SavedViewStore) {
         name,
         state,
       };
-      setViews((prev) => {
-        const next = [...prev.filter((v) => v.name !== name), view];
+      setViews((prev: any) => {
+        const next = [...prev.filter((v: any) => v.name !== name), view];
         actualStore.save(key, next);
         return next;
       });
@@ -149,8 +149,8 @@ export function useSavedViews(resourceName: string, store?: SavedViewStore) {
 
   const removeView = useCallback(
     (id: string) => {
-      setViews((prev) => {
-        const next = prev.filter((v) => v.id !== id);
+      setViews((prev: any) => {
+        const next = prev.filter((v: any) => v.id !== id);
         actualStore.save(key, next);
         return next;
       });

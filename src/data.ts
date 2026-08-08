@@ -38,7 +38,7 @@ export function useResourceList<T = FieldValues>(
   return useQuery({
     queryKey: resourceKeys(client.tenantId, resource.name).list(params),
     queryFn: () => client.list<T>(resource.endpoint, params),
-    placeholderData: (prev) => prev,
+    placeholderData: (prev: any) => prev,
   });
 }
 
@@ -81,7 +81,7 @@ export function useUpdateResource<T = FieldValues>(
   const client = useApiClient();
   const invalidate = useInvalidate(resource);
   return useMutation({
-    mutationFn: ({ id, values }) =>
+    mutationFn: ({ id, values }: any) =>
       client.patch<T>(`${resource.endpoint}/${id}`, values),
     onSuccess: () => void invalidate(),
   });

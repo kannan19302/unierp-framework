@@ -85,7 +85,7 @@ function InlineCell({
           minWidth: 40,
           minHeight: "1em",
         }}
-        onDoubleClick={(e) => {
+        onDoubleClick={(e: any) => {
           e.stopPropagation();
           setDraft(value === null || value === undefined ? "" : String(value));
           setEditing(true);
@@ -117,13 +117,13 @@ function InlineCell({
         autoFocus
         aria-label={`Edit ${field.label}`}
         value={draft}
-        onClick={(e) => e.stopPropagation()}
-        onChange={(e) => setDraft(e.target.value)}
+        onClick={(e: any) => e.stopPropagation()}
+        onChange={(e: any) => setDraft(e.target.value)}
         onBlur={commit}
         onKeyDown={keyHandler}
         style={{ minWidth: 120 }}
       >
-        {(field.options ?? []).map((o) => (
+        {(field.options ?? []).map((o: any) => (
           <option key={o.value} value={o.value}>
             {o.label}
           </option>
@@ -141,8 +141,8 @@ function InlineCell({
           : "text"
       }
       value={draft}
-      onClick={(e) => e.stopPropagation()}
-      onChange={(e) => setDraft(e.target.value)}
+      onClick={(e: any) => e.stopPropagation()}
+      onChange={(e: any) => setDraft(e.target.value)}
       onBlur={commit}
       onKeyDown={keyHandler}
       style={{ maxWidth: 160 }}
@@ -174,7 +174,7 @@ export function ListView({
     listConfig.chart?.groupBy ??
     resource.status?.field;
   const groupFieldDef = groupField
-    ? resource.fields.find((f) => f.name === groupField)
+    ? resource.fields.find((f: any) => f.name === groupField)
     : undefined;
   const availableViews =
     listConfig.views ??
@@ -210,15 +210,15 @@ export function ListView({
 
   const primaryKey = resource.primaryKey ?? "id";
   const allColumnNames =
-    listConfig.columns ?? resource.fields.slice(0, 5).map((f) => f.name);
+    listConfig.columns ?? resource.fields.slice(0, 5).map((f: any) => f.name);
   const columnNames = visibleColumns
-    ? allColumnNames.filter((n) => visibleColumns.includes(n))
+    ? allColumnNames.filter((n: any) => visibleColumns.includes(n))
     : allColumnNames;
   const inlineEditable = new Set(listConfig.inlineEdit ?? []);
 
   const columns = useMemo<Column<FieldValues>[]>(() => {
-    const cols: Column<FieldValues>[] = columnNames.map((name) => {
-      const field = resource.fields.find((f) => f.name === name);
+    const cols: Column<FieldValues>[] = columnNames.map((name: any) => {
+      const field = resource.fields.find((f: any) => f.name === name);
       const custom = listConfig.render?.[name];
       const isStatus = resource.status?.field === name;
       const align =
@@ -236,7 +236,7 @@ export function ListView({
           role="button"
           style={{ cursor: "pointer", userSelect: "none" }}
           onClick={() =>
-            setSort((prev) => {
+            setSort((prev: any) => {
               const direction: SortDirection =
                 prev?.field === name && prev.direction === "asc"
                   ? "desc"
@@ -249,7 +249,7 @@ export function ListView({
           {sort?.field === name ? (sort.direction === "asc" ? " ↑" : " ↓") : ""}
         </span>
       ) : (
-        name.replace(/^\w/, (c) => c.toUpperCase())
+        name.replace(/^\w/, (c: any) => c.toUpperCase())
       );
       return {
         key: name,
@@ -279,7 +279,7 @@ export function ListView({
               <InlineCell
                 field={field}
                 value={value}
-                onSave={(v) =>
+                onSave={(v: any) =>
                   updateMutation.mutate({
                     id: String(row[primaryKey]),
                     values: { [name]: v },
@@ -303,9 +303,9 @@ export function ListView({
         render: (row: FieldValues) => (
           <span
             style={{ display: "inline-flex", gap: "var(--space-1)" }}
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e: any) => e.stopPropagation()}
           >
-            {rowActions.map((a) => (
+            {rowActions.map((a: any) => (
               <Guarded key={a.label} permission={a.permission}>
                 <Button
                   variant={a.tone === "danger" ? "danger" : "ghost"}
@@ -336,7 +336,7 @@ export function ListView({
   // ── Kanban derivation ───────────────────────────
   const kanbanColumns = useMemo(() => {
     if (!groupField) return [];
-    const optionCols = groupFieldDef?.options?.map((o) => ({
+    const optionCols = groupFieldDef?.options?.map((o: any) => ({
       key: o.value,
       title: o.label,
     }));
@@ -346,21 +346,21 @@ export function ListView({
         ? Object.keys(resource.status.tones)
         : [];
     const dataKeys = [
-      ...new Set(rows.map((r) => String(r[groupField] ?? "—"))),
+      ...new Set(rows.map((r: any) => String(r[groupField] ?? "—"))),
     ];
     const keys = [...new Set([...toneKeys, ...dataKeys])];
-    return keys.map((k) => ({ key: k, title: k }));
+    return keys.map((k: any) => ({ key: k, title: k }));
   }, [groupField, groupFieldDef, resource.status, rows]);
 
   const titleField =
     resource.titleField ??
-    (resource.fields.some((f) => f.name === "name")
+    (resource.fields.some((f: any) => f.name === "name")
       ? "name"
       : (resource.fields[0]?.name ?? "id"));
   const cardFields =
     listConfig.kanban?.cardFields ??
     allColumnNames
-      .filter((n) => n !== groupField && n !== titleField)
+      .filter((n: any) => n !== groupField && n !== titleField)
       .slice(0, 3);
   const kanbanEditable = !!groupFieldDef && !groupFieldDef.readOnly;
 
@@ -373,8 +373,8 @@ export function ListView({
       counts.set(key, (counts.get(key) ?? 0) + 1);
     }
     return [...counts.entries()]
-      .map(([value, count]) => ({ value, count }))
-      .sort((a, b) => b.count - a.count);
+      .map(([value, count]: any) => ({ value, count }))
+      .sort((a: any, b: any) => b.count - a.count);
   }, [groupField, rows]);
 
   const toneColor = (value: string): string => {
@@ -401,7 +401,7 @@ export function ListView({
   /** Chart/kanban drill-down: filter the table to a segment's real records. */
   const drillDown = (value: string) => {
     if (!groupField) return;
-    setFieldFilters((prev) => ({ ...prev, [groupField]: value }));
+    setFieldFilters((prev: any) => ({ ...prev, [groupField]: value }));
     setPage(1);
     setViewMode("table");
   };
@@ -413,7 +413,7 @@ export function ListView({
   });
   const applyView = (id: string) => {
     setActiveViewId(id);
-    const view = views.find((v) => v.id === id);
+    const view = views.find((v: any) => v.id === id);
     if (!view) return;
     setSearch(view.state.search ?? "");
     setFieldFilters(view.state.filters ?? {});
@@ -463,11 +463,11 @@ export function ListView({
         {availableViews.length > 1 && (
           <ViewSwitcher
             activeView={(viewMode === "table" ? "list" : viewMode) as ViewMode}
-            onViewChange={(v) =>
+            onViewChange={(v: any) =>
               setViewMode(v === "list" ? "table" : (v as "kanban" | "chart"))
             }
             availableViews={
-              availableViews.map((v) =>
+              availableViews.map((v: any) =>
                 v === "table" ? "list" : v,
               ) as ViewMode[]
             }
@@ -477,7 +477,7 @@ export function ListView({
           <Input
             placeholder={`Search ${resource.labelPlural.toLowerCase()}…`}
             value={search}
-            onChange={(e) => {
+            onChange={(e: any) => {
               setSearch(e.target.value);
               setPage(1);
             }}
@@ -487,7 +487,7 @@ export function ListView({
         <FilterBar
           resource={resource}
           values={fieldFilters}
-          onChange={(v) => {
+          onChange={(v: any) => {
             setFieldFilters(v);
             setPage(1);
           }}
@@ -503,11 +503,11 @@ export function ListView({
             <Select
               aria-label="Saved views"
               value={activeViewId}
-              onChange={(e) => applyView(e.target.value)}
+              onChange={(e: any) => applyView(e.target.value)}
               style={{ minWidth: 150 }}
             >
               <option value="">Saved views…</option>
-              {views.map((v) => (
+              {views.map((v: any) => (
                 <option key={v.id} value={v.id}>
                   {v.name}
                 </option>
@@ -550,7 +550,7 @@ export function ListView({
             title={`Download the current ${resource.labelPlural.toLowerCase()} list as a CSV file`}
             onClick={() =>
               exportToCsv(
-                columns.filter((c) => c.key !== "__actions"),
+                columns.filter((c: any) => c.key !== "__actions"),
                 result?.data ?? [],
                 resource.labelPlural.toLowerCase().replace(/\s+/g, "-"),
               )
@@ -561,9 +561,9 @@ export function ListView({
         )}
         {showColumnPicker && (
           <ColumnPicker
-            options={allColumnNames.map((n) => ({
+            options={allColumnNames.map((n: any) => ({
               key: n,
-              label: resource.fields.find((f) => f.name === n)?.label ?? n,
+              label: resource.fields.find((f: any) => f.name === n)?.label ?? n,
             }))}
             visible={columnNames}
             onChange={setVisibleColumns}
@@ -585,15 +585,15 @@ export function ListView({
         <KanbanBoard
           columns={kanbanColumns}
           items={
-            rows.map((row, i) => ({
+            rows.map((row: any, i: any) => ({
               ...row,
               id: String(row[primaryKey] ?? i),
               columnKey: String(row[groupField] ?? "—"),
             })) as KanbanItem[]
           }
-          renderCard={(item) => {
+          renderCard={(item: any) => {
             const row =
-              rows.find((r) => String(r[primaryKey]) === item.id) ??
+              rows.find((r: any) => String(r[primaryKey]) === item.id) ??
               (item as FieldValues);
             return (
               <div
@@ -614,12 +614,12 @@ export function ListView({
                   }}
                 >
                   {formatCellValue(
-                    resource.fields.find((f) => f.name === titleField),
+                    resource.fields.find((f: any) => f.name === titleField),
                     row[titleField],
                   ) || String(row[primaryKey] ?? "")}
                 </span>
-                {cardFields.map((name) => {
-                  const field = resource.fields.find((f) => f.name === name);
+                {cardFields.map((name: any) => {
+                  const field = resource.fields.find((f: any) => f.name === name);
                   const value = row[name];
                   if (value === null || value === undefined || value === "")
                     return null;
@@ -640,7 +640,7 @@ export function ListView({
           }}
           onCardMove={
             kanbanEditable
-              ? (itemId, _from, toColumn) =>
+              ? (itemId: any, _from: any, toColumn: any) =>
                   updateMutation.mutate({
                     id: itemId,
                     values: { [groupField]: toColumn },
@@ -687,7 +687,7 @@ export function ListView({
               No data to chart.
             </span>
           )}
-          {chartSegments.map((seg) => {
+          {chartSegments.map((seg: any) => {
             const max = chartSegments[0]?.count ?? 1;
             return (
               <button
@@ -716,7 +716,7 @@ export function ListView({
                     whiteSpace: "nowrap",
                   }}
                 >
-                  {groupFieldDef?.options?.find((o) => o.value === seg.value)
+                  {groupFieldDef?.options?.find((o: any) => o.value === seg.value)
                     ?.label ?? seg.value}
                 </span>
                 <span
@@ -759,7 +759,7 @@ export function ListView({
           columns={columns}
           data={result?.data ?? []}
           loading={isLoading}
-          rowKey={(row, i) => String(row[primaryKey] ?? i)}
+          rowKey={(row: any, i: any) => String(row[primaryKey] ?? i)}
           onRowClick={onRowClick}
           emptyTitle={`No ${resource.labelPlural.toLowerCase()} yet`}
           emptyMessage={`Create your first ${resource.labelSingular.toLowerCase()} to get started.`}
@@ -767,7 +767,7 @@ export function ListView({
           onSelectionChange={selectable ? setSelected : undefined}
           bulkActions={
             selectable
-              ? (keys) => (
+              ? (keys: any) => (
                   <Guarded permission={resource.permissions?.delete}>
                     <Button
                       variant="danger"

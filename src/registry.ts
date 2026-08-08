@@ -47,7 +47,7 @@ export class ModuleRegistry {
   /** Look up a resource schema across all registered modules. */
   getResource(name: string): ResourceSchema | undefined {
     for (const module of this.modules.values()) {
-      const found = module.resources.find((r) => r.name === name);
+      const found = module.resources.find((r: any) => r.name === name);
       if (found) return found;
     }
     return undefined;

@@ -24,7 +24,7 @@ export function formatCellValue(
     case "datetime":
       return new Date(String(value)).toLocaleString();
     case "select": {
-      const option = field.options?.find((o) => o.value === value);
+      const option = field.options?.find((o: any) => o.value === value);
       return option?.label ?? String(value);
     }
     default:

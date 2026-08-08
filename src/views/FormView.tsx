@@ -84,9 +84,9 @@ export function FormView({
   }
 
   const setField = (name: string, value: unknown) => {
-    setValues((prev) => ({ ...prev, [name]: value }));
+    setValues((prev: any) => ({ ...prev, [name]: value }));
     setDirty(true);
-    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
+    if (errors[name]) setErrors((prev: any) => ({ ...prev, [name]: "" }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -123,7 +123,7 @@ export function FormView({
   };
 
   const sections = resource.form?.sections ?? [
-    { fields: resource.fields.map((f) => f.name) },
+    { fields: resource.fields.map((f: any) => f.name) },
   ];
   const saving = create.isPending || update.isPending;
   const submitPermission = isEdit
@@ -139,7 +139,7 @@ export function FormView({
         gap: "var(--space-6)",
       }}
     >
-      {sections.map((section, si) => (
+      {sections.map((section: any, si: any) => (
         <fieldset
           key={si}
           style={{
@@ -170,8 +170,8 @@ export function FormView({
               gap: "var(--space-4)",
             }}
           >
-            {section.fields.map((name) => {
-              const field = resource.fields.find((f) => f.name === name);
+            {section.fields.map((name: any) => {
+              const field = resource.fields.find((f: any) => f.name === name);
               if (!field) return null;
               if (field.visibleIf && !field.visibleIf(values)) return null;
               return (
@@ -186,7 +186,7 @@ export function FormView({
                     <FieldInput
                       field={field}
                       value={values[name]}
-                      onChange={(v) => setField(name, v)}
+                      onChange={(v: any) => setField(name, v)}
                     />
                   </FormField>
                 </Guarded>
@@ -249,7 +249,7 @@ function LinkAutocomplete({
         disabled={field.readOnly}
         placeholder={field.placeholder || `Enter ${field.label}...`}
         value={String(value ?? "")}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e: any) => onChange(e.target.value)}
       />
     );
   }
@@ -316,7 +316,7 @@ function ResolvedLinkAutocomplete({
   return (
     <div
       style={{ position: "relative", width: "100%" }}
-      onClick={(e) => e.stopPropagation()}
+      onClick={(e: any) => e.stopPropagation()}
     >
       <div
         style={{ display: "flex", alignItems: "center", position: "relative" }}
@@ -328,7 +328,7 @@ function ResolvedLinkAutocomplete({
             field.placeholder || `Search ${linkedResource.labelSingular}...`
           }
           value={isOpen ? search : displayValue}
-          onChange={(e) => {
+          onChange={(e: any) => {
             setSearch(e.target.value);
             if (!isOpen) setIsOpen(true);
             if (e.target.value === "") {
@@ -355,7 +355,7 @@ function ResolvedLinkAutocomplete({
           {!!value && !field.readOnly && (
             <button
               type="button"
-              onClick={(e) => {
+              onClick={(e: any) => {
                 e.stopPropagation();
                 onChange("");
                 setSearch("");
@@ -416,7 +416,7 @@ function ResolvedLinkAutocomplete({
               No results found
             </div>
           ) : (
-            suggestions.map((item) => {
+            suggestions.map((item: any) => {
               const itemId = item[primaryKey];
               const itemLabel = String(item[labelField] ?? itemId);
               const isSelected = itemId === value;
@@ -438,13 +438,13 @@ function ResolvedLinkAutocomplete({
                       ? "var(--color-primary, #15803d)"
                       : "inherit",
                   }}
-                  onMouseEnter={(e) => {
+                  onMouseEnter={(e: any) => {
                     if (!isSelected) {
                       e.currentTarget.style.backgroundColor =
                         "var(--color-bg-hover, #f8fafc)";
                     }
                   }}
-                  onMouseLeave={(e) => {
+                  onMouseLeave={(e: any) => {
                     if (!isSelected) {
                       e.currentTarget.style.backgroundColor = "transparent";
                     }
@@ -494,7 +494,7 @@ function FieldInput({
         <Textarea
           {...common}
           value={String(value ?? "")}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e: any) => onChange(e.target.value)}
           rows={4}
         />
       );
@@ -503,10 +503,10 @@ function FieldInput({
         <Select
           {...common}
           value={String(value ?? "")}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e: any) => onChange(e.target.value)}
         >
           <option value="">— Select —</option>
-          {(field.options ?? []).map((o) => (
+          {(field.options ?? []).map((o: any) => (
             <option key={o.value} value={o.value}>
               {o.label}
             </option>
@@ -520,7 +520,7 @@ function FieldInput({
           type="checkbox"
           disabled={field.readOnly}
           checked={!!value}
-          onChange={(e) => onChange(e.target.checked)}
+          onChange={(e: any) => onChange(e.target.checked)}
           style={{ width: 18, height: 18, accentColor: "var(--color-primary)" }}
         />
       );
@@ -539,7 +539,7 @@ function FieldInput({
               ? ""
               : String(value)
           }
-          onChange={(e) =>
+          onChange={(e: any) =>
             onChange(e.target.value === "" ? "" : Number(e.target.value))
           }
         />
@@ -550,7 +550,7 @@ function FieldInput({
           {...common}
           type="date"
           value={String(value ?? "")}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e: any) => onChange(e.target.value)}
         />
       );
     case "datetime":
@@ -559,7 +559,7 @@ function FieldInput({
           {...common}
           type="datetime-local"
           value={String(value ?? "")}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e: any) => onChange(e.target.value)}
         />
       );
     case "email":
@@ -568,7 +568,7 @@ function FieldInput({
           {...common}
           type="email"
           value={String(value ?? "")}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e: any) => onChange(e.target.value)}
         />
       );
     case "phone":
@@ -577,7 +577,7 @@ function FieldInput({
           {...common}
           type="tel"
           value={String(value ?? "")}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e: any) => onChange(e.target.value)}
         />
       );
     case "link":
@@ -591,7 +591,7 @@ function FieldInput({
           type="text"
           maxLength={field.maxLength}
           value={String(value ?? "")}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e: any) => onChange(e.target.value)}
         />
       );
   }
