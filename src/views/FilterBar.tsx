@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Input, Select } from "@unerp/ui";
+import { Button, Input, Select } from "@kannan19302/ui";
 import type { FieldDef, FilterValues, ResourceSchema } from "../types";
 
 // ─────────────────────────────────────────────────

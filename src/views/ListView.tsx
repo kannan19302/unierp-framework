@@ -17,7 +17,7 @@ import {
   type Column,
   type KanbanItem,
   type ViewMode,
-} from "@unerp/ui";
+} from "@kannan19302/ui";
 import { useDeleteResource, useResourceList, useUpdateResource } from "../data";
 import { Guarded } from "../permissions";
 import { formatCellValue } from "./format";

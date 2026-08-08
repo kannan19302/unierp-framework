@@ -1,11 +1,11 @@
-# @unerp/framework
+# @kannan19302/framework
 
 > Part of **[UniERP](https://github.com/kannan19302/UniERP)** — an open-source, self-hostable multi-tenant application platform.
 > [Repository map](https://github.com/kannan19302/UniERP#repository-map) · [Architecture](https://github.com/kannan19302/UniERP#how-the-pieces-fit-at-runtime) · [Contributing](https://github.com/kannan19302/UniERP/blob/main/CONTRIBUTING.md) · [Security](https://github.com/kannan19302/UniERP/blob/main/SECURITY.md)
 
 UniERP's unified frontend framework. Provides a declarative metadata layer: modules describe their **resources** declaratively, and the framework generates data fetching, validation, navigation, and full list/detail/form views — the same way for every app and module.
 
-Sits **above** `@unerp/ui` (design system) and **below** each host app (`apps/web`, future apps). It is also the shared runtime that Studio-rendered pages should consume — do not fork a second rendering engine.
+Sits **above** `@kannan19302/ui` (design system) and **below** each host app (`apps/web`, future apps). It is also the shared runtime that Studio-rendered pages should consume — do not fork a second rendering engine.
 
 ## Layers
 
@@ -24,7 +24,7 @@ Sits **above** `@unerp/ui` (design system) and **below** each host app (`apps/we
 **1. Define a module** (one file per module, e.g. `modules/crm.ts`):
 
 ```ts
-import { defineModule, defineResource } from '@unerp/framework';
+import { defineModule, defineResource } from '@kannan19302/framework';
 
 const customer = defineResource({
   name: 'customer',

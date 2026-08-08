@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 // ─────────────────────────────────────────────────
-// @unerp/framework — Core metadata types
+// @kannan19302/framework — Core metadata types
 // The schema layer that provides declarative resource definitions:
 // every module describes its resources declaratively
 // and the framework renders list/detail/form views.

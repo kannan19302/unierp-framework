@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────
-// @unerp/framework — Unified frontend framework
+// @kannan19302/framework — Unified frontend framework
 // for every UniERP app and module.
 //
 // Layers:

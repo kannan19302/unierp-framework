@@ -8,7 +8,7 @@ import {
   EmptyState,
   PageHeader,
   Spinner,
-} from "@unerp/ui";
+} from "@kannan19302/ui";
 import { useResourceDoc } from "../data";
 import { Guarded } from "../permissions";
 import { formatCellValue } from "./format";

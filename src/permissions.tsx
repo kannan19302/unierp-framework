@@ -1,10 +1,10 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { EmptyState, usePermission } from "@unerp/ui";
+import { EmptyState, usePermission } from "@kannan19302/ui";
 
 // ─────────────────────────────────────────────────
-// Permission guards — thin layer over @unerp/ui's
+// Permission guards — thin layer over @kannan19302/ui's
 // PermissionContext so framework views and routes
 // share one RBAC vocabulary (`module.resource.action`).
 // ─────────────────────────────────────────────────
@@ -14,7 +14,7 @@ export {
   PermissionContext,
   ProtectedComponent,
   ProtectedField,
-} from "@unerp/ui";
+} from "@kannan19302/ui";
 
 export interface GuardedProps {
   /** RBAC code; when omitted, access is granted */

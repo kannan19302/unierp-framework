@@ -9,7 +9,7 @@ import {
   Spinner,
   Textarea,
   useToast,
-} from "@unerp/ui";
+} from "@kannan19302/ui";
 import {
   useCreateResource,
   useResourceDoc,
