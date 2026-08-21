@@ -30,6 +30,27 @@ export interface ApiClientConfig {
 }
 
 const SAFE_METHODS = ["GET", "HEAD", "OPTIONS"];
+const REQUEST_ID_HEADER = "x-request-id";
+
+/**
+ * One id per browser session, not per request — the point is to let W10's
+ * audit trail and log correlation trace "everything this browser tab did",
+ * not just one request in isolation. `idp` and `api`'s own request-logger
+ * middleware already generate a fresh id when a request arrives with none;
+ * this only ensures one is sent in the first place, and that every
+ * subsequent call from this tab carries the same one so their `x-request-id`
+ * responses actually chain together.
+ */
+function sessionCorrelationId(): string {
+  if (typeof window === "undefined") return crypto.randomUUID();
+  const key = "unierp.correlationId";
+  let id = window.sessionStorage.getItem(key);
+  if (!id) {
+    id = crypto.randomUUID();
+    window.sessionStorage.setItem(key, id);
+  }
+  return id;
+}
 
 export class ApiClient {
   constructor(private readonly config: ApiClientConfig) {}
@@ -59,6 +80,9 @@ export class ApiClient {
     if (!SAFE_METHODS.includes(method)) {
       const csrf = this.config.getCsrfToken?.();
       if (csrf) headers.set("x-csrf-token", csrf);
+    }
+    if (!headers.has(REQUEST_ID_HEADER)) {
+      headers.set(REQUEST_ID_HEADER, sessionCorrelationId());
     }
 
     const res = await fetch(url, {
