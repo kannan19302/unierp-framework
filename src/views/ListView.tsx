@@ -246,7 +246,7 @@ export function ListView({
           }
         >
           {field.label}
-          {sort?.field === name ? (sort.direction === "asc" ? " ↑" : " ↓") : ""}
+          {sort?.field === name ? (sort?.direction === "asc" ? " ↑" : " ↓") : ""}
         </span>
       ) : (
         name.replace(/^\w/, (c: any) => c.toUpperCase())

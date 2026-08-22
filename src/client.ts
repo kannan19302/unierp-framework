@@ -31,6 +31,7 @@ export interface ApiClientConfig {
 
 const SAFE_METHODS = ["GET", "HEAD", "OPTIONS"];
 const REQUEST_ID_HEADER = "x-request-id";
+const IDEMPOTENCY_KEY_HEADER = "idempotency-key";
 
 /**
  * One id per browser session, not per request — the point is to let W10's
@@ -80,6 +81,13 @@ export class ApiClient {
     if (!SAFE_METHODS.includes(method)) {
       const csrf = this.config.getCsrfToken?.();
       if (csrf) headers.set("x-csrf-token", csrf);
+      // Every mutation gets a caller-generated key. Endpoints that require
+      // idempotency therefore work through the shared client by default, and
+      // callers that need to retry the same logical operation may supply and
+      // reuse an explicit key through `request()`.
+      if (!headers.has(IDEMPOTENCY_KEY_HEADER)) {
+        headers.set(IDEMPOTENCY_KEY_HEADER, crypto.randomUUID());
+      }
     }
     if (!headers.has(REQUEST_ID_HEADER)) {
       headers.set(REQUEST_ID_HEADER, sessionCorrelationId());
