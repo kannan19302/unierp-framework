@@ -1,6 +1,10 @@
 {
   "name": "@kannan19302/framework",
   "version": "0.1.4",
+  "packageManager": "pnpm@9.15.4",
+  "engines": {
+    "node": ">=22 <23"
+  },
   "description": "UniERP Frontend Framework — unified schema-driven application layer for all apps and modules",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
