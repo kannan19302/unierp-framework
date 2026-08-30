@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useMemo, type ReactNode } from "react";
+import { createContext, useContext, useMemo, useRef, type ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ApiClient, type ApiClientConfig } from "./client";
 import { ModuleRegistry, createRegistry } from "./registry";
@@ -40,8 +40,22 @@ export function FrameworkProvider({
   createQueryClient = false,
   children,
 }: FrameworkProviderProps) {
+  const apiRef = useRef(api);
+  apiRef.current = api;
+
   const value = useMemo<FrameworkContextValue>(
-    () => ({ client: new ApiClient(api), registry: createRegistry(modules) }),
+    () => {
+      const dynamicConfig: ApiClientConfig = {
+        get baseUrl() {
+          return apiRef.current.baseUrl;
+        },
+        getToken: () => apiRef.current.getToken?.() ?? null,
+        getCsrfToken: () => apiRef.current.getCsrfToken?.() ?? null,
+        getTenantId: () => apiRef.current.getTenantId?.() ?? null,
+        onUnauthorized: () => apiRef.current.onUnauthorized?.(),
+      };
+      return { client: new ApiClient(dynamicConfig), registry: createRegistry(modules) };
+    },
     // Hosts pass stable literals; re-instantiating per render would nuke the cache.
     [],
   );
